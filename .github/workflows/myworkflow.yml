@@ -43,7 +43,7 @@ jobs:
         generate-branches-badge: true
         branches-badge-filename: branches.svg
         jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
-
+        
     - name: Check badge creation
       run: ls -l .github/badges
         
