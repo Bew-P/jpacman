@@ -15,25 +15,34 @@ public class DirectionTest {
      * Do we get the correct delta when moving north?
      */
     @Test
-    void testNorth() {
+    public void testNorth() { // เปลี่ยนเป็น public
         Direction north = Direction.valueOf("NORTH");
         assertThat(north.getDeltaY()).isEqualTo(-1);
     }
 
+    /**
+     * Do we get the correct delta when moving south?
+     */
     @Test
-    void testSouth() {
+    public void testSouth() { // เปลี่ยนเป็น public
         Direction south = Direction.valueOf("SOUTH");
         assertThat(south.getDeltaY()).isEqualTo(1);
     }
 
+    /**
+     * Do we get the correct delta when moving east?
+     */
     @Test
-    void testEast() {
+    public void testEast() { // เปลี่ยนเป็น public
         Direction east = Direction.valueOf("EAST");
         assertThat(east.getDeltaX()).isEqualTo(1);
     }
 
+    /**
+     * Do we get the correct delta when moving west?
+     */
     @Test
-    void testWest() {
+    public void testWest() { // เปลี่ยนเป็น public
         Direction west = Direction.valueOf("WEST");
         assertThat(west.getDeltaX()).isEqualTo(-1);
     }
