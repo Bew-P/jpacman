@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -37,7 +36,6 @@ public class MapParserTest {
     private LevelFactory levelFactory;
     @Mock
     private Blinky blinky;
-    // Removed unused 'ghost' mock
     @Mock
     private Square groundSquare;
     @Mock
@@ -47,9 +45,11 @@ public class MapParserTest {
     @Mock
     private Level level;
 
+    /**
+     * Set up common mock behavior for the MapParser tests.
+     */ 
     @BeforeEach
     public void setUp() {
-
         // Setup mocks for ALL expected creations:
         Mockito.when(boardFactory.createGround()).thenReturn(groundSquare);
         Mockito.when(boardFactory.createWall()).thenReturn(wallSquare);
@@ -58,7 +58,7 @@ public class MapParserTest {
     }
 
     /**
-     * Test for the parseMap method (good map).
+     * Test for the parseMap method (good map) with comprehensive verifications.
      */
     @Test
     public void testParseMapGood() {
@@ -82,15 +82,13 @@ public class MapParserTest {
 
         Level actualLevel = mapParser.parseMap(map);
 
-        // Verify Board Elements Creation (26 Walls, 10 Ground)
+        // Verify Board Elements Creation
         Mockito.verify(boardFactory, Mockito.times(EXPECTED_WALLS)).createWall();
         Mockito.verify(boardFactory, Mockito.times(EXPECTED_GROUND)).createGround();
 
         // Verify NPC and Item Creation
         Mockito.verify(levelFactory, Mockito.times(EXPECTED_GHOSTS)).createGhost();
         Mockito.verify(levelFactory, Mockito.times(EXPECTED_PELLETS)).createPellet();
-
-        // Verify Occupancy
         Mockito.verify(blinky, Mockito.times(EXPECTED_GHOSTS)).occupy(groundSquare);
 
         // Verify Final Board/Level Assembly
@@ -116,5 +114,4 @@ public class MapParserTest {
         assertEquals(groundSquare, capturedStartPositions.get(0),
             "The captured start position should be the mocked GroundSquare.");
     }
-
 }
