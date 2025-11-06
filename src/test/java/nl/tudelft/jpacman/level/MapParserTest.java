@@ -5,6 +5,7 @@ import nl.tudelft.jpacman.board.BoardFactory;
 import nl.tudelft.jpacman.board.Square;
 import nl.tudelft.jpacman.npc.Ghost;
 import nl.tudelft.jpacman.npc.ghost.Blinky;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,14 +25,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 @ExtendWith(MockitoExtension.class)
 public class MapParserTest {
+
+    private static final int EXPECTED_WALLS = 26;
+    private static final int EXPECTED_GROUND = 10;
+    private static final int EXPECTED_GHOSTS = 1;
+    private static final int EXPECTED_PELLETS = 0;
+
     @Mock
     private BoardFactory boardFactory;
     @Mock
     private LevelFactory levelFactory;
     @Mock
     private Blinky blinky;
-    @Mock
-    private Ghost ghost;
+    // Removed unused 'ghost' mock
     @Mock
     private Square groundSquare;
     @Mock
@@ -41,20 +47,23 @@ public class MapParserTest {
     @Mock
     private Level level;
 
-    /**
-     * Test for the parseMap method (good map).
-     */
-    @Test
-    public void testParseMapGood() {
-        MockitoAnnotations.initMocks(this);
-        assertNotNull(boardFactory);
-        assertNotNull(levelFactory);
+    @BeforeEach
+    public void setUp() {
 
         // Setup mocks for ALL expected creations:
         Mockito.when(boardFactory.createGround()).thenReturn(groundSquare);
         Mockito.when(boardFactory.createWall()).thenReturn(wallSquare);
         Mockito.when(levelFactory.createGhost()).thenReturn(blinky);
         Mockito.when(boardFactory.createBoard(Mockito.any())).thenReturn(board);
+    }
+
+    /**
+     * Test for the parseMap method (good map).
+     */
+    @Test
+    public void testParseMapGood() {
+        assertNotNull(boardFactory);
+        assertNotNull(levelFactory);
 
         // Use ArgumentCaptor for the final createLevel call to inspect the arguments
         ArgumentCaptor<List> ghostsCaptor = ArgumentCaptor.forClass(List.class);
@@ -62,7 +71,8 @@ public class MapParserTest {
 
         // Stub createLevel() with the Captors
         Mockito.when(levelFactory.createLevel(
-            Mockito.eq(board), ghostsCaptor.capture(), startPositionsCaptor.capture())).thenReturn(level);
+            Mockito.eq(board), ghostsCaptor.capture(),
+            startPositionsCaptor.capture())).thenReturn(level);
 
         MapParser mapParser = new MapParser(levelFactory, boardFactory);
         ArrayList<String> map = new ArrayList<>();
@@ -73,34 +83,38 @@ public class MapParserTest {
         Level actualLevel = mapParser.parseMap(map);
 
         // Verify Board Elements Creation (26 Walls, 10 Ground)
-        Mockito.verify(boardFactory, Mockito.times(26)).createWall();
-        Mockito.verify(boardFactory, Mockito.times(10)).createGround();
+        Mockito.verify(boardFactory, Mockito.times(EXPECTED_WALLS)).createWall();
+        Mockito.verify(boardFactory, Mockito.times(EXPECTED_GROUND)).createGround();
 
         // Verify NPC and Item Creation
-        Mockito.verify(levelFactory, Mockito.times(1)).createGhost(); 
-        Mockito.verify(levelFactory, Mockito.times(0)).createPellet();
+        Mockito.verify(levelFactory, Mockito.times(EXPECTED_GHOSTS)).createGhost();
+        Mockito.verify(levelFactory, Mockito.times(EXPECTED_PELLETS)).createPellet();
 
-        // Verify Occupancy (Ghost and Pellet are placed on a Ground Square)
-        Mockito.verify(blinky, Mockito.times(1)).occupy(groundSquare);
+        // Verify Occupancy
+        Mockito.verify(blinky, Mockito.times(EXPECTED_GHOSTS)).occupy(groundSquare);
 
         // Verify Final Board/Level Assembly
-        Mockito.verify(boardFactory, Mockito.times(1)).createBoard(Mockito.any(Square[][].class));
-        Mockito.verify(levelFactory, Mockito.times(1)).createLevel(
-            Mockito.eq(board), Mockito.anyList(), Mockito.anyList()
-        );
+        Mockito.verify(boardFactory, Mockito.times(EXPECTED_GHOSTS))
+            .createBoard(Mockito.any(Square[][].class));
+
+        Mockito.verify(levelFactory, Mockito.times(EXPECTED_GHOSTS))
+            .createLevel(Mockito.eq(board), Mockito.anyList(), Mockito.anyList());
+
         assertNotNull(actualLevel);
 
         // Verify Captured Ghost List
         List<Ghost> capturedGhosts = ghostsCaptor.getValue();
-        assertEquals(1, capturedGhosts.size(), "The map should contain exactly one ghost.");
-        assertEquals(blinky, capturedGhosts.get(0), "The captured ghost should be the mocked Blinky object.");
+        assertEquals(EXPECTED_GHOSTS, capturedGhosts.size(),
+            "The map should contain exactly one ghost.");
+        assertEquals(blinky, capturedGhosts.get(0),
+            "The captured ghost should be the mocked Blinky object.");
 
         // Verify Captured Start Positions List
         List<Square> capturedStartPositions = startPositionsCaptor.getValue();
-        assertEquals(1, capturedStartPositions.size(), "The map should contain exactly one starting position.");
-        assertEquals(groundSquare, capturedStartPositions.get(0), "The captured start position should be the mocked GroundSquare.");
-
-
+        assertEquals(EXPECTED_GHOSTS, capturedStartPositions.size(),
+            "The map should contain exactly one starting position.");
+        assertEquals(groundSquare, capturedStartPositions.get(0),
+            "The captured start position should be the mocked GroundSquare.");
     }
 
 }
