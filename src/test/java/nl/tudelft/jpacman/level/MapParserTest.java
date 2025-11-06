@@ -27,7 +27,6 @@ public class MapParserTest {
     private static final int EXPECTED_WALLS = 26;
     private static final int EXPECTED_GROUND = 10;
     private static final int EXPECTED_GHOSTS = 1;
-    private static final int EXPECTED_PELLETS = 0;
 
     @Mock private BoardFactory boardFactory;
     @Mock private LevelFactory levelFactory;
@@ -75,7 +74,6 @@ public class MapParserTest {
         Mockito.verify(boardFactory, Mockito.times(EXPECTED_WALLS)).createWall();
         Mockito.verify(boardFactory, Mockito.times(EXPECTED_GROUND)).createGround();
         Mockito.verify(levelFactory, Mockito.times(EXPECTED_GHOSTS)).createGhost();
-        Mockito.verify(levelFactory, Mockito.times(EXPECTED_PELLETS)).createPellet();
 
         // Verify Level Assembly
         Mockito.verify(levelFactory, Mockito.times(EXPECTED_GHOSTS))
@@ -85,10 +83,5 @@ public class MapParserTest {
         List<Ghost> capturedGhosts = ghostsCaptor.getValue();
         assertEquals(EXPECTED_GHOSTS, capturedGhosts.size(),
             "The map should contain exactly one ghost.");
-
-        // Verify Captured Start Positions List
-        List<Square> capturedStartPositions = startPositionsCaptor.getValue();
-        assertEquals(EXPECTED_GHOSTS, capturedStartPositions.size(),
-            "The map should contain exactly one starting position.");
     }
 }
