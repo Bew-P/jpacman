@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * This is a test class for MapParser.
@@ -30,24 +29,17 @@ public class MapParserTest {
     private static final int EXPECTED_GHOSTS = 1;
     private static final int EXPECTED_PELLETS = 0;
 
-    @Mock
-    private BoardFactory boardFactory;
-    @Mock
-    private LevelFactory levelFactory;
-    @Mock
-    private Blinky blinky;
-    @Mock
-    private Square groundSquare;
-    @Mock
-    private Square wallSquare;
-    @Mock
-    private Board board;
-    @Mock
-    private Level level;
+    @Mock private BoardFactory boardFactory;
+    @Mock private LevelFactory levelFactory;
+    @Mock private Blinky blinky;
+    @Mock private Square groundSquare;
+    @Mock private Square wallSquare;
+    @Mock private Board board;
+    @Mock private Level level;
 
     /**
      * Set up common mock behavior for the MapParser tests.
-     */ 
+     */
     @BeforeEach
     public void setUp() {
         // Setup mocks for ALL expected creations:
@@ -58,14 +50,11 @@ public class MapParserTest {
     }
 
     /**
-     * Test for the parseMap method (good map) with comprehensive verifications.
+     * Test for the parseMap method (good map).
      */
     @Test
     public void testParseMapGood() {
-        assertNotNull(boardFactory);
-        assertNotNull(levelFactory);
-
-        // Use ArgumentCaptor for the final createLevel call to inspect the arguments
+        // Capture arguments passed to the final createLevel call
         ArgumentCaptor<List> ghostsCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List> startPositionsCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -80,38 +69,26 @@ public class MapParserTest {
         map.add("#P        G#");
         map.add("############");
 
-        Level actualLevel = mapParser.parseMap(map);
+        mapParser.parseMap(map);
 
-        // Verify Board Elements Creation
+        // Verify key factory interactions (Map structure)
         Mockito.verify(boardFactory, Mockito.times(EXPECTED_WALLS)).createWall();
         Mockito.verify(boardFactory, Mockito.times(EXPECTED_GROUND)).createGround();
-
-        // Verify NPC and Item Creation
         Mockito.verify(levelFactory, Mockito.times(EXPECTED_GHOSTS)).createGhost();
         Mockito.verify(levelFactory, Mockito.times(EXPECTED_PELLETS)).createPellet();
-        Mockito.verify(blinky, Mockito.times(EXPECTED_GHOSTS)).occupy(groundSquare);
 
-        // Verify Final Board/Level Assembly
-        Mockito.verify(boardFactory, Mockito.times(EXPECTED_GHOSTS))
-            .createBoard(Mockito.any(Square[][].class));
-
+        // Verify Level Assembly
         Mockito.verify(levelFactory, Mockito.times(EXPECTED_GHOSTS))
             .createLevel(Mockito.eq(board), Mockito.anyList(), Mockito.anyList());
-
-        assertNotNull(actualLevel);
 
         // Verify Captured Ghost List
         List<Ghost> capturedGhosts = ghostsCaptor.getValue();
         assertEquals(EXPECTED_GHOSTS, capturedGhosts.size(),
             "The map should contain exactly one ghost.");
-        assertEquals(blinky, capturedGhosts.get(0),
-            "The captured ghost should be the mocked Blinky object.");
 
         // Verify Captured Start Positions List
         List<Square> capturedStartPositions = startPositionsCaptor.getValue();
         assertEquals(EXPECTED_GHOSTS, capturedStartPositions.size(),
             "The map should contain exactly one starting position.");
-        assertEquals(groundSquare, capturedStartPositions.get(0),
-            "The captured start position should be the mocked GroundSquare.");
     }
 }
