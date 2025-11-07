@@ -56,7 +56,6 @@ public class MapParserTest {
         // Capture arguments passed to the final createLevel call
         ArgumentCaptor<List> ghostsCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List> startPositionsCaptor = ArgumentCaptor.forClass(List.class);
-
         // Stub createLevel() with the Captors
         Mockito.when(levelFactory.createLevel(
             Mockito.eq(board), ghostsCaptor.capture(),
@@ -67,7 +66,6 @@ public class MapParserTest {
         map.add("############");
         map.add("#P        G#");
         map.add("############");
-
         mapParser.parseMap(map);
 
         // Verify key factory interactions (Map structure)
